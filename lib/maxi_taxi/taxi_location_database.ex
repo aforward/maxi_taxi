@@ -23,11 +23,22 @@ defmodule MaxiTaxi.TaxiLocationsDatabase do
   @type taxi :: String.t()
   @type lat :: float()
   @type lon :: float()
+  @type timestamp :: integer()
   @type location :: {lat(), lon()}
 
   @spec update(taxi(), location()) :: :ok
   def update(taxi, location) do
-    :ets.insert(@table, {taxi, location, ts()})
+    now = ts()
+    update_local(taxi, location, now)
+    Node.list()
+    |> Enum.each(fn n ->
+      :rpc.call(n, __MODULE__, :update_local, [taxi, location, now])
+    end)
+  end
+
+  @spec update_local(taxi(), location(), timestamp()) :: :ok
+  def update_local(taxi, location, timestamp) do
+    :ets.insert(@table, {taxi, location, timestamp})
     :ok
   end
 
