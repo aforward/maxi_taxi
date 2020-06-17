@@ -27,9 +27,11 @@ defmodule MaxiTaxi.TaxiLocationsDatabase do
 
   @spec update(taxi(), location()) :: :ok
   def update(taxi, location) do
-    :ets.insert(@table, {taxi, location, DateTime.utc_now() |> DateTime.to_unix()})
+    :ets.insert(@table, {taxi, location, ts()})
     :ok
   end
+
+  defp ts(), do: DateTime.utc_now() |> DateTime.to_unix()
 
   @spec fetch(taxi()) :: {:ok, location()} | :no_known_location
   def fetch(taxi) do

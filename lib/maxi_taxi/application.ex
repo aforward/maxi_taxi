@@ -31,7 +31,7 @@ defmodule MaxiTaxi.Application do
   end
 
   defp libcustomer_configs do
-    topologies = [
+    [
       maxi_taxi: [
         strategy: Cluster.Strategy.Epmd,
         config: [hosts: [:"maxi@127.0.0.1", :"maxi2@127.0.0.1"]],
