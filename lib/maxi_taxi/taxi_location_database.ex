@@ -23,19 +23,35 @@ defmodule MaxiTaxi.TaxiLocationsDatabase do
   @type taxi :: String.t()
   @type lat :: float()
   @type lon :: float()
+  @type timestamp :: float()
   @type location :: {lat(), lon()}
 
   @spec update(taxi(), location()) :: :ok
   def update(taxi, location) do
-    :ets.insert(@table, {taxi, location})
+    now = ts()
+    update_local(taxi, location, now)
+    Node.list()
+    |> Enum.each(fn n ->
+      :rpc.call(n, MaxiTaxi.TaxiLocationsDatabase, :update_local, [taxi, location, now], 2000)
+    end)
+  end
+
+  @spec update_local(taxi(), location(), timestamp()) :: :ok
+  def update_local(taxi, location, updated_at) do
+    now = ts()
+    if (now - updated_at < 2000) do
+      :ets.insert(@table, {taxi, location, updated_at})
+    end
     :ok
   end
+
+  defp ts(), do: DateTime.utc_now() |> DateTime.to_unix()
 
   @spec fetch(taxi()) :: {:ok, location()} | :no_known_location
   def fetch(taxi) do
     case :ets.lookup(@table, taxi) do
       [] -> :no_known_location
-      [{^taxi, location}] -> {:ok, location}
+      [{^taxi, location, _ts}] -> {:ok, location}
     end
   end
 

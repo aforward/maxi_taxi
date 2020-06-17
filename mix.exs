@@ -24,7 +24,8 @@ defmodule MaxiTaxi.MixProject do
   defp deps do
     [
       {:local_cluster, "~> 1.1", only: :test},
-      {:schism, "~> 1.0", only: :test}
+      {:schism, "~> 1.0", only: :test},
+      {:libcluster, "~> 3.2"},
     ]
   end
 

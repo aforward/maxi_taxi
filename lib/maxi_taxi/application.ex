@@ -8,8 +8,17 @@ defmodule MaxiTaxi.Application do
   @dev Mix.env() == :dev
 
   def start(_type, _args) do
+
+    topologies = [
+      maxi_taxi: [
+        strategy: Cluster.Strategy.Epmd,
+        config: [hosts: [:"maxi1@127.0.0.1", :"maxi1@127.0.0.1"]],
+      ]
+    ]
+
     children =
       [
+        {Cluster.Supervisor, [topologies, [name: MaxiTaxi.ClusterSupervisor]]},
         MaxiTaxi.TaxiLocationsDatabase,
         {Registry, name: MaxiTaxi.TaxiRegistry, keys: :unique},
         {DynamicSupervisor, name: MaxiTaxi.TaxiSupervisor, strategy: :one_for_one}
