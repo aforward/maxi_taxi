@@ -23,6 +23,7 @@ defmodule MaxiTaxi.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:libcluster, "~> 3.2"},
       {:local_cluster, "~> 1.1", only: :test},
       {:schism, "~> 1.0", only: :test}
     ]
