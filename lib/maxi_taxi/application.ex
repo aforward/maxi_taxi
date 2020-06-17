@@ -10,6 +10,7 @@ defmodule MaxiTaxi.Application do
   def start(_type, _args) do
     children =
       [
+        {Cluster.Supervisor, [libcustomer_configs(), [name: MyApp.ClusterSupervisor]]},
         MaxiTaxi.TaxiLocationsDatabase,
         {Registry, name: MaxiTaxi.TaxiRegistry, keys: :unique},
         {DynamicSupervisor, name: MaxiTaxi.TaxiSupervisor, strategy: :one_for_one}
@@ -27,5 +28,14 @@ defmodule MaxiTaxi.Application do
     else
       []
     end
+  end
+
+  defp libcustomer_configs do
+    topologies = [
+      maxi_taxi: [
+        strategy: Cluster.Strategy.Epmd,
+        config: [hosts: [:"maxi@127.0.0.1", :"maxi2@127.0.0.1"]],
+      ]
+    ]
   end
 end
